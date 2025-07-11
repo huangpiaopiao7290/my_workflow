@@ -1,0 +1,8 @@
+.env
+.vscode
+.idea
+
+storage/logs/*
+config/*.yaml
+config/*.yml
+config/*.toml

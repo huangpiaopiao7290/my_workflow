@@ -9,7 +9,6 @@ import (
 	"time"
 
 	config "my_workflow/config"
-	"my_workflow/pkg/database/mongodb"
 	"my_workflow/pkg/logger"
 
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -85,11 +84,9 @@ func GetClient() *mongo.Client {
 // ======================
 
 func GetDatabase() *mongo.Database {
-	db := GetClient().Database(commonDatabaseName)
-	return mongodb.Database{Database: db}
+	return GetClient().Database(commonDatabaseName)
 }
 
-func CardTable(collectionName string) *mongodb.Collection {
-	collection := GetDatabase().Collection(collectionName)
-	return mongodb.Collection{Collection: collection}
+func CardTable(collectionName string) *mongo.Collection {
+	return GetDatabase().Collection(collectionName)
 }

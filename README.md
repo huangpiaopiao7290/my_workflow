@@ -4,4 +4,11 @@
 - mongodb
 - redis
 - sqlite
+---
+run：
+```go
+// git clone
+go mod tidy
+
+```
 

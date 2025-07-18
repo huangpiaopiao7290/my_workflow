@@ -2,7 +2,11 @@
 .vscode
 .idea
 
+go.mod
+go.sum
+
 storage/logs/*
 config/*.yaml
 config/*.yml
 config/*.toml
+!config/config.example.yml

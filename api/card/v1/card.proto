@@ -1,0 +1,144 @@
+syntax = "proto3";
+package card.v1;
+option go_package = "my_workflow/api/card/v1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
+
+service CardService {
+    // 通过id获取卡片
+    rpc GetCard(GetCardRequest) returns (CommonResponse) {
+        option (google.api.http) = {
+            get: "/api/card/v1/get_card"
+            additional_bindings {
+                get: "/api/card/v1/cards/{card_id}"
+            }
+        };
+    }
+
+    // 获取所有卡片
+    rpc ListCards(ListCardsRequest) returns (CommonResponse) {
+        option (google.api.http) = {
+            get: "/api/card/v1/list_cards"
+            additional_bindings {
+                get: "/api/card/v1/cards"
+            }
+        };
+    }
+
+    // 更新卡片
+    rpc UpdateCard(UpdateCardRequest) returns (CommonResponse) {
+        option (google.api.http) = {
+            put: "/api/card/v1/update_card"
+            body: "*"
+            additional_bindings {
+                put: "/api/card/v1/cards/{card_id}"
+                body: "*"
+            }
+        };
+    }
+
+    // 添加卡片
+    rpc AddCard(AddCardRequest) returns (CommonResponse) {
+        option (google.api.http) = {
+            post: "/api/card/v1/add_card"
+            body: "*"
+            additional_bindings {
+                post: "/api/card/v1/cards"
+                body: "*"
+            }
+        };
+    }
+
+    // 删除卡片
+    rpc DeleteCard(DeleteCardRequest) returns (CommonResponse) {
+        option (google.api.http) = {
+            delete: "/api/card/v1/delete_card"
+            additional_bindings {
+                delete: "/api/card/v1/cards/{card_id}"
+            }
+        };
+    }
+
+    // 上传文件
+    rpc Upload(UploadRequest) returns (CommonResponse) {
+        option (google.api.http) = {
+            post: "/api/card/v1/upload"
+            body: "*"
+        };
+    }
+}
+
+// 通用响应消息（统一返回格式）
+message CommonResponse {
+    int32 code = 1; // 状态码：0-成功，非0-错误
+    string message = 2; // 提示信息
+    google.protobuf.Any data = 3; // 业务数据（任意类型）
+}
+
+// 卡片元数据
+message Card {
+    string card_id = 1;
+    string title = 2;
+    string content = 3;
+    string tags = 4;        // 标签(分号分隔)
+    google.protobuf.Timestamp create_time = 5;
+    google.protobuf.Timestamp update_time = 6;
+    string file_path = 7;
+}
+
+// 获取单个卡片请求
+message GetCardRequest {
+    string card_id = 1;
+}
+
+// 获取所有卡片请求
+message ListCardsRequest {
+    int32 page_size = 1;
+    int32 page_num = 2;
+    string order_by = 3; 
+    string filter = 4;
+}
+
+// 列表响应数据（用于CommonResponse的data字段）
+message ListCardsData {
+    int32 page_size = 1;
+    int32 page_num = 2;
+    int32 total_count = 3;
+    repeated Card cards = 4;
+}
+
+// 更新卡片请求
+message UpdateCardRequest {
+    string card_id = 1;
+    optional string title = 2;
+    optional string content = 3;
+    optional string tags = 4;
+    optional string file_path = 5;
+}
+
+// 添加卡片请求
+message AddCardRequest {
+    string title = 1;
+    string content = 2;
+    string tags = 3;
+    string file_path = 4;
+}
+
+// 删除卡片请求
+message DeleteCardRequest {
+    string card_id = 1;
+}
+
+// 上传文件请求
+message UploadRequest {
+    string card_id = 1;
+    bytes file_content = 2;
+    string file_name = 3;
+}
+
+// 上传文件响应数据（用于CommonResponse的data字段）
+message UploadData {
+    string file_url = 1; // 上传后的文件URL
+}

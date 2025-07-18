@@ -1,0 +1,17 @@
+app:
+  httpPort: 8000
+  httpUrl: 127.0.0.1:8000
+  rpcPort: 8001
+  ai:
+  file:
+    logPath: storage/logs
+database:
+  mongodb:
+    username: root
+    password: 
+    addr:: mongodb://%s:%s@127.0.0.1:27017/
+    moinPool: 10
+    maxPool: 100
+    maxConnIdelTime: 30
+    connectTimeout: 10
+    commonDatabase: manage_wf

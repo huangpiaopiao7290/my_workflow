@@ -3,7 +3,7 @@ package config
 import (
 	"context"
 	"fmt"
-	"my_workflow/pkg/logger"
+	"my_workflow/pkg/common/logger"
 	"os"
 	"sync"
 
@@ -14,9 +14,10 @@ import (
 
 var (
 	EnvConfigRootDir = "/config"				// 配置文件根目录
-	BaseConfigPath = "/config/config.yaml"		// 基础配置文件路径
+	BaseConfigPath = "/config/config.yml"		// 基础配置文件路径
 	configMutext sync.RWMutex
 )
+
 func init() {
 	if err := LoadConfig(); err != nil {
 		panic(fmt.Errorf("fatal error init config: %w", err))
@@ -49,7 +50,7 @@ func LoadConfig() error {
 func GetString(key string) string {
 	configValue := viper.GetString(key)
 	if configValue == "" {
-		logger.Error(context.Background(), "config not found", key)
+		logger.Error(context.Background(), "config type in string not found", key)
 	}
 	return configValue
 }
@@ -57,7 +58,7 @@ func GetString(key string) string {
 func GetInt(key string) int {
 	configValue := viper.GetInt(key)
 	if configValue == 0 {
-		logger.Error(context.Background(), "config not found", key)
+		logger.Error(context.Background(), "config type in int not found", key)
 	}
 	return configValue
 }

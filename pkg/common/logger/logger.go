@@ -53,7 +53,7 @@ type requestDataHook struct{}
 // 初始化全局日志记录
 func initLogger() {
 	today := time.Now().Format("20060102")
-	fileName := "storage/loggs/app-" + today + ".log"
+	fileName := "storage/logs/app-" + today + ".log"
 	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		fmt.Println("Error init logger:", err)

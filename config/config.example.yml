@@ -5,13 +5,16 @@ app:
   ai:
   file:
     logPath: storage/logs
-database:
-  mongodb:
-    username: root
-    password: 
-    addr:: mongodb://%s:%s@127.0.0.1:27017/
-    moinPool: 10
-    maxPool: 100
-    maxConnIdelTime: 30
-    connectTimeout: 10
-    commonDatabase: manage_wf
+
+# database 使用你本地的配置
+mongodb:
+  username: xxxxx
+  password: xxxxx
+  # 也可以使用你自己的mongo配置而非打包的docker镜像()
+  addr: "mongodb://%s:%s@localhost:27017,localhost:27018,localhost:27019/?replicaSet=rs0&authSource=admin"
+  minPoolSize: 10
+  maxPoolSize: 100
+  maxConnIdleTime: 30
+  connectTimeout: 20
+  commonDataBase: manage_dev
+  cardDataBase: card

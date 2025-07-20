@@ -1,0 +1,42 @@
+version: '3.8'
+
+networks:
+  mongo-network:
+    driver: bridge
+
+services:
+  mongo-node1:
+    image: mongo:latest
+    container_name: mongo-node1
+    networks:
+      - mongo-network
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./keyfile/mongo-keyfile:/data/keyfile/mongo-keyfile  # 相对路径挂载密钥
+    command: mongod --replSet rs0 --bind_ip_all --auth --keyFile /data/keyfile/mongo-keyfile
+    restart: always  # 自动重启
+
+  mongo-node2:
+    image: mongo:latest
+    container_name: mongo-node2
+    networks:
+      - mongo-network
+    ports:
+      - "27018:27017"
+    volumes:
+      - ./keyfile/mongo-keyfile:/data/keyfile/mongo-keyfile
+    command: mongod --replSet rs0 --bind_ip_all --auth --keyFile /data/keyfile/mongo-keyfile
+    restart: always
+
+  mongo-node3:
+    image: mongo:latest
+    container_name: mongo-node3
+    networks:
+      - mongo-network
+    ports:
+      - "27019:27017"
+    volumes:
+      - ./keyfile/mongo-keyfile:/data/keyfile/mongo-keyfile
+    command: mongod --replSet rs0 --bind_ip_all --auth --keyFile /data/keyfile/mongo-keyfile
+    restart: always

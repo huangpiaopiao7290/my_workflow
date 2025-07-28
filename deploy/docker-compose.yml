@@ -7,7 +7,7 @@ networks:
 services:
   mongo-node1:
     image: mongo:latest
-    container_name: mongo-node1
+    container_name: localhost:27017
     networks:
       - mongo-network
     ports:
@@ -19,7 +19,7 @@ services:
 
   mongo-node2:
     image: mongo:latest
-    container_name: mongo-node2
+    container_name: localhost:27018
     networks:
       - mongo-network
     ports:
@@ -31,7 +31,7 @@ services:
 
   mongo-node3:
     image: mongo:latest
-    container_name: mongo-node3
+    container_name: localhost:27019
     networks:
       - mongo-network
     ports:

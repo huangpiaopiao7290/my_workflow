@@ -11,29 +11,17 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo/readpref"
 
 	"my_workflow/config"
-	"my_workflow/pkg/common/logger"
 	"my_workflow/pkg/common/helper"
-
-
+	"my_workflow/pkg/common/logger"
 )
-
-// CustomDB 是 mongo.Database 的定制版本，提供额外的功能
-type CustomDB struct {
-	*mongo.Database
-}
-
-// CustomCollection 是 mongo.Collection 的定制版本，提供额外的功能
-type CustomCollection struct {
-	*mongo.Collection
-}
 
 // 定义全局变量
 var (
 	client             *mongo.Client
 	once               sync.Once
 	mu                 sync.RWMutex
-	// commonDataBaseName = config.GetString("mongodb.commonDataBase")
-	// cardDataBaseName = config.GetString("mongodb.cardDataBase")
+	commonDataBaseName = config.GetString("mongodb.commonDataBase")
+	cardDataBaseName   = config.GetString("mongodb.cardDataBase")
 	ErrNoDocuments     = mongo.ErrNoDocuments
 )
 
@@ -105,4 +93,16 @@ func GetClient() *mongo.Client {
 	}
 	mu.RUnlock()
 	return client
+}
+
+// ----------------------返回实例--------------------------
+//  card collection
+//
+
+func CommonDB() *mongo.Database {
+	return GetClient().Database(commonDataBaseName)
+}
+
+func CardCollection(collectionName string) *mongo.Collection {
+	return CommonDB().Collection(collectionName)
 }

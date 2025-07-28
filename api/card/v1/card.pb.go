@@ -91,10 +91,11 @@ type Card struct {
 	CardId        string                 `protobuf:"bytes,1,opt,name=card_id,json=cardId,proto3" json:"card_id,omitempty"`
 	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
 	Content       string                 `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`
-	Tags          string                 `protobuf:"bytes,4,opt,name=tags,proto3" json:"tags,omitempty"` // 标签(分号分隔)
+	Tags          []string               `protobuf:"bytes,4,rep,name=tags,proto3" json:"tags,omitempty"`
 	CreateTime    *timestamp.Timestamp   `protobuf:"bytes,5,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
 	UpdateTime    *timestamp.Timestamp   `protobuf:"bytes,6,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
-	FilePath      string                 `protobuf:"bytes,7,opt,name=file_path,json=filePath,proto3" json:"file_path,omitempty"`
+	Status        string                 `protobuf:"bytes,7,opt,name=status,proto3" json:"status,omitempty"`           // 添加状态字段
+	Attachments   []*Attachment          `protobuf:"bytes,8,rep,name=attachments,proto3" json:"attachments,omitempty"` // 添加附件列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -150,11 +151,11 @@ func (x *Card) GetContent() string {
 	return ""
 }
 
-func (x *Card) GetTags() string {
+func (x *Card) GetTags() []string {
 	if x != nil {
 		return x.Tags
 	}
-	return ""
+	return nil
 }
 
 func (x *Card) GetCreateTime() *timestamp.Timestamp {
@@ -171,9 +172,101 @@ func (x *Card) GetUpdateTime() *timestamp.Timestamp {
 	return nil
 }
 
-func (x *Card) GetFilePath() string {
+func (x *Card) GetStatus() string {
 	if x != nil {
-		return x.FilePath
+		return x.Status
+	}
+	return ""
+}
+
+func (x *Card) GetAttachments() []*Attachment {
+	if x != nil {
+		return x.Attachments
+	}
+	return nil
+}
+
+// 附件元数据
+type Attachment struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Filename      string                 `protobuf:"bytes,2,opt,name=filename,proto3" json:"filename,omitempty"`
+	Size          int64                  `protobuf:"varint,3,opt,name=size,proto3" json:"size,omitempty"`
+	ContentType   string                 `protobuf:"bytes,4,opt,name=content_type,json=contentType,proto3" json:"content_type,omitempty"`
+	Location      string                 `protobuf:"bytes,5,opt,name=location,proto3" json:"location,omitempty"`
+	Url           string                 `protobuf:"bytes,6,opt,name=url,proto3" json:"url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Attachment) Reset() {
+	*x = Attachment{}
+	mi := &file_api_card_v1_card_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Attachment) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Attachment) ProtoMessage() {}
+
+func (x *Attachment) ProtoReflect() protoreflect.Message {
+	mi := &file_api_card_v1_card_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Attachment.ProtoReflect.Descriptor instead.
+func (*Attachment) Descriptor() ([]byte, []int) {
+	return file_api_card_v1_card_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *Attachment) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Attachment) GetFilename() string {
+	if x != nil {
+		return x.Filename
+	}
+	return ""
+}
+
+func (x *Attachment) GetSize() int64 {
+	if x != nil {
+		return x.Size
+	}
+	return 0
+}
+
+func (x *Attachment) GetContentType() string {
+	if x != nil {
+		return x.ContentType
+	}
+	return ""
+}
+
+func (x *Attachment) GetLocation() string {
+	if x != nil {
+		return x.Location
+	}
+	return ""
+}
+
+func (x *Attachment) GetUrl() string {
+	if x != nil {
+		return x.Url
 	}
 	return ""
 }
@@ -188,7 +281,7 @@ type GetCardRequest struct {
 
 func (x *GetCardRequest) Reset() {
 	*x = GetCardRequest{}
-	mi := &file_api_card_v1_card_proto_msgTypes[2]
+	mi := &file_api_card_v1_card_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -200,7 +293,7 @@ func (x *GetCardRequest) String() string {
 func (*GetCardRequest) ProtoMessage() {}
 
 func (x *GetCardRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_card_v1_card_proto_msgTypes[2]
+	mi := &file_api_card_v1_card_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -213,7 +306,7 @@ func (x *GetCardRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCardRequest.ProtoReflect.Descriptor instead.
 func (*GetCardRequest) Descriptor() ([]byte, []int) {
-	return file_api_card_v1_card_proto_rawDescGZIP(), []int{2}
+	return file_api_card_v1_card_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetCardRequest) GetCardId() string {
@@ -236,7 +329,7 @@ type ListCardsRequest struct {
 
 func (x *ListCardsRequest) Reset() {
 	*x = ListCardsRequest{}
-	mi := &file_api_card_v1_card_proto_msgTypes[3]
+	mi := &file_api_card_v1_card_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -248,7 +341,7 @@ func (x *ListCardsRequest) String() string {
 func (*ListCardsRequest) ProtoMessage() {}
 
 func (x *ListCardsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_card_v1_card_proto_msgTypes[3]
+	mi := &file_api_card_v1_card_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -261,7 +354,7 @@ func (x *ListCardsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListCardsRequest.ProtoReflect.Descriptor instead.
 func (*ListCardsRequest) Descriptor() ([]byte, []int) {
-	return file_api_card_v1_card_proto_rawDescGZIP(), []int{3}
+	return file_api_card_v1_card_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ListCardsRequest) GetPageSize() int32 {
@@ -305,7 +398,7 @@ type ListCardsData struct {
 
 func (x *ListCardsData) Reset() {
 	*x = ListCardsData{}
-	mi := &file_api_card_v1_card_proto_msgTypes[4]
+	mi := &file_api_card_v1_card_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -317,7 +410,7 @@ func (x *ListCardsData) String() string {
 func (*ListCardsData) ProtoMessage() {}
 
 func (x *ListCardsData) ProtoReflect() protoreflect.Message {
-	mi := &file_api_card_v1_card_proto_msgTypes[4]
+	mi := &file_api_card_v1_card_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -330,7 +423,7 @@ func (x *ListCardsData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListCardsData.ProtoReflect.Descriptor instead.
 func (*ListCardsData) Descriptor() ([]byte, []int) {
-	return file_api_card_v1_card_proto_rawDescGZIP(), []int{4}
+	return file_api_card_v1_card_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ListCardsData) GetPageSize() int32 {
@@ -375,7 +468,7 @@ type UpdateCardRequest struct {
 
 func (x *UpdateCardRequest) Reset() {
 	*x = UpdateCardRequest{}
-	mi := &file_api_card_v1_card_proto_msgTypes[5]
+	mi := &file_api_card_v1_card_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -387,7 +480,7 @@ func (x *UpdateCardRequest) String() string {
 func (*UpdateCardRequest) ProtoMessage() {}
 
 func (x *UpdateCardRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_card_v1_card_proto_msgTypes[5]
+	mi := &file_api_card_v1_card_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -400,7 +493,7 @@ func (x *UpdateCardRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateCardRequest.ProtoReflect.Descriptor instead.
 func (*UpdateCardRequest) Descriptor() ([]byte, []int) {
-	return file_api_card_v1_card_proto_rawDescGZIP(), []int{5}
+	return file_api_card_v1_card_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *UpdateCardRequest) GetCardId() string {
@@ -451,7 +544,7 @@ type AddCardRequest struct {
 
 func (x *AddCardRequest) Reset() {
 	*x = AddCardRequest{}
-	mi := &file_api_card_v1_card_proto_msgTypes[6]
+	mi := &file_api_card_v1_card_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -463,7 +556,7 @@ func (x *AddCardRequest) String() string {
 func (*AddCardRequest) ProtoMessage() {}
 
 func (x *AddCardRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_card_v1_card_proto_msgTypes[6]
+	mi := &file_api_card_v1_card_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -476,7 +569,7 @@ func (x *AddCardRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddCardRequest.ProtoReflect.Descriptor instead.
 func (*AddCardRequest) Descriptor() ([]byte, []int) {
-	return file_api_card_v1_card_proto_rawDescGZIP(), []int{6}
+	return file_api_card_v1_card_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *AddCardRequest) GetTitle() string {
@@ -517,7 +610,7 @@ type DeleteCardRequest struct {
 
 func (x *DeleteCardRequest) Reset() {
 	*x = DeleteCardRequest{}
-	mi := &file_api_card_v1_card_proto_msgTypes[7]
+	mi := &file_api_card_v1_card_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -529,7 +622,7 @@ func (x *DeleteCardRequest) String() string {
 func (*DeleteCardRequest) ProtoMessage() {}
 
 func (x *DeleteCardRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_card_v1_card_proto_msgTypes[7]
+	mi := &file_api_card_v1_card_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -542,7 +635,7 @@ func (x *DeleteCardRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteCardRequest.ProtoReflect.Descriptor instead.
 func (*DeleteCardRequest) Descriptor() ([]byte, []int) {
-	return file_api_card_v1_card_proto_rawDescGZIP(), []int{7}
+	return file_api_card_v1_card_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *DeleteCardRequest) GetCardId() string {
@@ -564,7 +657,7 @@ type UploadRequest struct {
 
 func (x *UploadRequest) Reset() {
 	*x = UploadRequest{}
-	mi := &file_api_card_v1_card_proto_msgTypes[8]
+	mi := &file_api_card_v1_card_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -576,7 +669,7 @@ func (x *UploadRequest) String() string {
 func (*UploadRequest) ProtoMessage() {}
 
 func (x *UploadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_card_v1_card_proto_msgTypes[8]
+	mi := &file_api_card_v1_card_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -589,7 +682,7 @@ func (x *UploadRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UploadRequest.ProtoReflect.Descriptor instead.
 func (*UploadRequest) Descriptor() ([]byte, []int) {
-	return file_api_card_v1_card_proto_rawDescGZIP(), []int{8}
+	return file_api_card_v1_card_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *UploadRequest) GetCardId() string {
@@ -623,7 +716,7 @@ type UploadData struct {
 
 func (x *UploadData) Reset() {
 	*x = UploadData{}
-	mi := &file_api_card_v1_card_proto_msgTypes[9]
+	mi := &file_api_card_v1_card_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -635,7 +728,7 @@ func (x *UploadData) String() string {
 func (*UploadData) ProtoMessage() {}
 
 func (x *UploadData) ProtoReflect() protoreflect.Message {
-	mi := &file_api_card_v1_card_proto_msgTypes[9]
+	mi := &file_api_card_v1_card_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -648,7 +741,7 @@ func (x *UploadData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UploadData.ProtoReflect.Descriptor instead.
 func (*UploadData) Descriptor() ([]byte, []int) {
-	return file_api_card_v1_card_proto_rawDescGZIP(), []int{9}
+	return file_api_card_v1_card_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *UploadData) GetFileUrl() string {
@@ -666,17 +759,26 @@ const file_api_card_v1_card_proto_rawDesc = "" +
 	"\x0eCommonResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x05R\x04code\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12(\n" +
-	"\x04data\x18\x03 \x01(\v2\x14.google.protobuf.AnyR\x04data\"\xfa\x01\n" +
+	"\x04data\x18\x03 \x01(\v2\x14.google.protobuf.AnyR\x04data\"\xac\x02\n" +
 	"\x04Card\x12\x17\n" +
 	"\acard_id\x18\x01 \x01(\tR\x06cardId\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x18\n" +
 	"\acontent\x18\x03 \x01(\tR\acontent\x12\x12\n" +
-	"\x04tags\x18\x04 \x01(\tR\x04tags\x12;\n" +
+	"\x04tags\x18\x04 \x03(\tR\x04tags\x12;\n" +
 	"\vcreate_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"createTime\x12;\n" +
 	"\vupdate_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"updateTime\x12\x1b\n" +
-	"\tfile_path\x18\a \x01(\tR\bfilePath\")\n" +
+	"updateTime\x12\x16\n" +
+	"\x06status\x18\a \x01(\tR\x06status\x125\n" +
+	"\vattachments\x18\b \x03(\v2\x13.card.v1.AttachmentR\vattachments\"\x9d\x01\n" +
+	"\n" +
+	"Attachment\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
+	"\bfilename\x18\x02 \x01(\tR\bfilename\x12\x12\n" +
+	"\x04size\x18\x03 \x01(\x03R\x04size\x12!\n" +
+	"\fcontent_type\x18\x04 \x01(\tR\vcontentType\x12\x1a\n" +
+	"\blocation\x18\x05 \x01(\tR\blocation\x12\x10\n" +
+	"\x03url\x18\x06 \x01(\tR\x03url\")\n" +
 	"\x0eGetCardRequest\x12\x17\n" +
 	"\acard_id\x18\x01 \x01(\tR\x06cardId\"}\n" +
 	"\x10ListCardsRequest\x12\x1b\n" +
@@ -738,43 +840,45 @@ func file_api_card_v1_card_proto_rawDescGZIP() []byte {
 	return file_api_card_v1_card_proto_rawDescData
 }
 
-var file_api_card_v1_card_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_api_card_v1_card_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_api_card_v1_card_proto_goTypes = []any{
 	(*CommonResponse)(nil),      // 0: card.v1.CommonResponse
 	(*Card)(nil),                // 1: card.v1.Card
-	(*GetCardRequest)(nil),      // 2: card.v1.GetCardRequest
-	(*ListCardsRequest)(nil),    // 3: card.v1.ListCardsRequest
-	(*ListCardsData)(nil),       // 4: card.v1.ListCardsData
-	(*UpdateCardRequest)(nil),   // 5: card.v1.UpdateCardRequest
-	(*AddCardRequest)(nil),      // 6: card.v1.AddCardRequest
-	(*DeleteCardRequest)(nil),   // 7: card.v1.DeleteCardRequest
-	(*UploadRequest)(nil),       // 8: card.v1.UploadRequest
-	(*UploadData)(nil),          // 9: card.v1.UploadData
-	(*any1.Any)(nil),            // 10: google.protobuf.Any
-	(*timestamp.Timestamp)(nil), // 11: google.protobuf.Timestamp
+	(*Attachment)(nil),          // 2: card.v1.Attachment
+	(*GetCardRequest)(nil),      // 3: card.v1.GetCardRequest
+	(*ListCardsRequest)(nil),    // 4: card.v1.ListCardsRequest
+	(*ListCardsData)(nil),       // 5: card.v1.ListCardsData
+	(*UpdateCardRequest)(nil),   // 6: card.v1.UpdateCardRequest
+	(*AddCardRequest)(nil),      // 7: card.v1.AddCardRequest
+	(*DeleteCardRequest)(nil),   // 8: card.v1.DeleteCardRequest
+	(*UploadRequest)(nil),       // 9: card.v1.UploadRequest
+	(*UploadData)(nil),          // 10: card.v1.UploadData
+	(*any1.Any)(nil),            // 11: google.protobuf.Any
+	(*timestamp.Timestamp)(nil), // 12: google.protobuf.Timestamp
 }
 var file_api_card_v1_card_proto_depIdxs = []int32{
-	10, // 0: card.v1.CommonResponse.data:type_name -> google.protobuf.Any
-	11, // 1: card.v1.Card.create_time:type_name -> google.protobuf.Timestamp
-	11, // 2: card.v1.Card.update_time:type_name -> google.protobuf.Timestamp
-	1,  // 3: card.v1.ListCardsData.cards:type_name -> card.v1.Card
-	2,  // 4: card.v1.CardService.GetCard:input_type -> card.v1.GetCardRequest
-	3,  // 5: card.v1.CardService.ListCards:input_type -> card.v1.ListCardsRequest
-	5,  // 6: card.v1.CardService.UpdateCard:input_type -> card.v1.UpdateCardRequest
-	6,  // 7: card.v1.CardService.AddCard:input_type -> card.v1.AddCardRequest
-	7,  // 8: card.v1.CardService.DeleteCard:input_type -> card.v1.DeleteCardRequest
-	8,  // 9: card.v1.CardService.Upload:input_type -> card.v1.UploadRequest
-	0,  // 10: card.v1.CardService.GetCard:output_type -> card.v1.CommonResponse
-	0,  // 11: card.v1.CardService.ListCards:output_type -> card.v1.CommonResponse
-	0,  // 12: card.v1.CardService.UpdateCard:output_type -> card.v1.CommonResponse
-	0,  // 13: card.v1.CardService.AddCard:output_type -> card.v1.CommonResponse
-	0,  // 14: card.v1.CardService.DeleteCard:output_type -> card.v1.CommonResponse
-	0,  // 15: card.v1.CardService.Upload:output_type -> card.v1.CommonResponse
-	10, // [10:16] is the sub-list for method output_type
-	4,  // [4:10] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	11, // 0: card.v1.CommonResponse.data:type_name -> google.protobuf.Any
+	12, // 1: card.v1.Card.create_time:type_name -> google.protobuf.Timestamp
+	12, // 2: card.v1.Card.update_time:type_name -> google.protobuf.Timestamp
+	2,  // 3: card.v1.Card.attachments:type_name -> card.v1.Attachment
+	1,  // 4: card.v1.ListCardsData.cards:type_name -> card.v1.Card
+	3,  // 5: card.v1.CardService.GetCard:input_type -> card.v1.GetCardRequest
+	4,  // 6: card.v1.CardService.ListCards:input_type -> card.v1.ListCardsRequest
+	6,  // 7: card.v1.CardService.UpdateCard:input_type -> card.v1.UpdateCardRequest
+	7,  // 8: card.v1.CardService.AddCard:input_type -> card.v1.AddCardRequest
+	8,  // 9: card.v1.CardService.DeleteCard:input_type -> card.v1.DeleteCardRequest
+	9,  // 10: card.v1.CardService.Upload:input_type -> card.v1.UploadRequest
+	0,  // 11: card.v1.CardService.GetCard:output_type -> card.v1.CommonResponse
+	0,  // 12: card.v1.CardService.ListCards:output_type -> card.v1.CommonResponse
+	0,  // 13: card.v1.CardService.UpdateCard:output_type -> card.v1.CommonResponse
+	0,  // 14: card.v1.CardService.AddCard:output_type -> card.v1.CommonResponse
+	0,  // 15: card.v1.CardService.DeleteCard:output_type -> card.v1.CommonResponse
+	0,  // 16: card.v1.CardService.Upload:output_type -> card.v1.CommonResponse
+	11, // [11:17] is the sub-list for method output_type
+	5,  // [5:11] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_api_card_v1_card_proto_init() }
@@ -782,14 +886,14 @@ func file_api_card_v1_card_proto_init() {
 	if File_api_card_v1_card_proto != nil {
 		return
 	}
-	file_api_card_v1_card_proto_msgTypes[5].OneofWrappers = []any{}
+	file_api_card_v1_card_proto_msgTypes[6].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_card_v1_card_proto_rawDesc), len(file_api_card_v1_card_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

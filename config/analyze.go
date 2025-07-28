@@ -42,7 +42,7 @@ func LoadConfig() error {
 	return nil
 }
 
-// 获取配置项字符串类型
+// GetString 获取配置项字符串类型
 // 参数：
 // 	 - key 配置项的key
 // 返回值：

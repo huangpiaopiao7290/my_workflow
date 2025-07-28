@@ -82,10 +82,21 @@ message Card {
     string card_id = 1;
     string title = 2;
     string content = 3;
-    string tags = 4;        // 标签(分号分隔)
+    repeated string tags = 4;
     google.protobuf.Timestamp create_time = 5;
     google.protobuf.Timestamp update_time = 6;
-    string file_path = 7;
+    string status = 7; // 添加状态字段
+    repeated Attachment attachments = 8; // 添加附件列表
+}
+
+// 附件元数据
+message Attachment {
+    string id = 1;
+    string filename = 2;
+    int64 size = 3;
+    string content_type = 4;
+    string location = 5;
+    string url = 6;
 }
 
 // 获取单个卡片请求

@@ -3,6 +3,7 @@ package helper
 import (
 	"fmt"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -66,4 +67,15 @@ func IsURL(input string) bool {
 	// 如果两者都满足，则返回true，表明输入是一个有效的URL。
 	// 否则，返回false。
 	return validSchemes[u.Scheme] && u.Host != ""
+}
+
+// FilterEmptyStrings 过滤字符串切片中空元素
+func FilterEmptyStrings(slice []string) []string {
+	var result []string
+	for _, s := range slice {
+		if strings.TrimSpace(s) != "" {
+			result = append(result, s)
+		}
+	}
+	return result
 }

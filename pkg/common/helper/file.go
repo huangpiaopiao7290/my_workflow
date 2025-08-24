@@ -106,3 +106,14 @@ func UnmarshalByte(ctx context.Context, data []byte, result any) {
 		})
 	}
 }
+
+// Save 文件存储
+// 参数:
+//   filepath string: 文件存储路径
+//   data []byte: 文件数据
+// 返回:
+//   error: 系统错误
+// func Save(ctx context.Context, filepath string, data []byte) error {
+// 	// 创建文件存储目录
+// 	if err := os.MkdirAll()
+// }

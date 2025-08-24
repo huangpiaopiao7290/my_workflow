@@ -13,6 +13,7 @@ const (
 	CardIDKey      = "_id"
 	UserIDKey      = "user_id"
 	StatusKey	   = "status"
+    DeleteKey      = "deleted_at"
 	Title		   = "title"
 )
 

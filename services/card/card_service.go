@@ -99,18 +99,18 @@ func (s *CardService) GetCard(ctx context.Context, req *pb.GetCardRequest) (*pb.
 	err = collection.FindOne(ctx, bson.M{
 		card.CardIDKey: cardID,
 		card.DeleteKey: false,
-		}).Decode(&cardDoc)
+	}).Decode(&cardDoc)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			logger.Warn(ctx, "card not exists", map[string]string{
 				"card_id": req.CardId,
-				"error": err.Error(),
+				"error":   err.Error(),
 			})
 			return nil, status.Errorf(codes.NotFound, "card not exists")
 		}
 		logger.Error(ctx, "get card record failed", map[string]string{
 			"card_id": req.CardId,
-			"error":  err.Error(),
+			"error":   err.Error(),
 		})
 		return nil, status.Errorf(codes.Internal, "get card faield")
 	}
@@ -197,7 +197,14 @@ func (s *CardService) ListCards(ctx context.Context, req *pb.ListCardsRequest) (
 		})
 		return nil, status.Errorf(codes.Internal, "failed to find cards")
 	}
-	defer cursor.Close(ctx)
+	defer func(cursor *mongo.Cursor, ctx context.Context) {
+		err := cursor.Close(ctx)
+		if err != nil {
+			logger.Error(ctx, "close cursor failed", map[string]interface{}{
+				"error": err.Error(),
+			})
+		}
+	}(cursor, ctx)
 
 	var cards []*pb.Card
 	for cursor.Next(ctx) {
@@ -236,7 +243,7 @@ func (s *CardService) UpdateCard(ctx context.Context, req *pb.UpdateCardRequest)
 	cardID, err := primitive.ObjectIDFromHex(req.CardId)
 	if err != nil {
 		logger.Error(ctx, "card id error", map[string]string{
-			"error": err.Error(),
+			"error":   err.Error(),
 			"card_id": req.CardId,
 		})
 	}
@@ -255,7 +262,7 @@ func (s *CardService) UpdateCard(ctx context.Context, req *pb.UpdateCardRequest)
 		}
 		logger.Error(ctx, "get existing card failed", map[string]interface{}{
 			"card_id": req.CardId,
-			"error":  err.Error(),
+			"error":   err.Error(),
 		})
 		return nil, status.Errorf(codes.Internal, "get existing card failed: %v", err)
 	}
@@ -263,7 +270,7 @@ func (s *CardService) UpdateCard(ctx context.Context, req *pb.UpdateCardRequest)
 	update := bson.M{
 		"$set": bson.M{
 			"updated_at": time.Now(),
-	}}
+		}}
 
 	// 处理 title（optional 字段，判断是否有值
 	if req.Title != nil {
@@ -298,7 +305,7 @@ func (s *CardService) UpdateCard(ctx context.Context, req *pb.UpdateCardRequest)
 	if err != nil {
 		logger.Error(ctx, "update card failed", map[string]interface{}{
 			"card_id": req.CardId,
-			"error":  err.Error(),
+			"error":   err.Error(),
 		})
 		return nil, status.Errorf(codes.Internal, "update card failed: %v", err)
 	}
@@ -327,7 +334,7 @@ func (s *CardService) AddCard(ctx context.Context, req *pb.AddCardRequest) (*pb.
 		Title:     req.Title,
 		Content:   req.Content,
 		Tags:      []string{},
-		Status:    cardTypes.Active, 	// 默认状态
+		Status:    cardTypes.Active, // 默认状态
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 		DeletedAt: false,

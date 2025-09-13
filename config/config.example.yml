@@ -6,12 +6,12 @@ app:
   file:
     logPath: storage/logs
 
-# database 使用你本地的配置
+# database
 mongodb:
   username: xxxxx
   password: xxxxx
-  # 也可以使用你自己的mongo配置而非打包的docker镜像()
-  addr: "mongodb://%s:%s@localhost:27017,localhost:27018,localhost:27019/?replicaSet=rs0&authSource=admin"
+  #addr: "mongodb://%s:%s@localhost:27017,localhost:27018,localhost:27019/?replicaSet=rs0&authSource=admin"
+  addr: "mongodb://%s:%s@localhost:27017/?authSource=admin&directConnection=true"
   minPoolSize: 10
   maxPoolSize: 100
   maxConnIdleTime: 30

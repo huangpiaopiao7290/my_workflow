@@ -1,7 +1,7 @@
 #!/bin/bash
 # my_workflow proto编译脚本
 # @auther: pp
-#
+# @description: 这个脚本目前还有问题，用最后的注释命令讲究一下先
 
 # 错误处理
 set -e

@@ -103,6 +103,10 @@ func CommonDB() *mongo.Database {
 	return GetClient().Database(commonDataBaseName)
 }
 
+func CardDB() *mongo.Database {
+	return GetClient().Database(cardDataBaseName)
+}
+
 func CardCollection(collectionName string) *mongo.Collection {
-	return CommonDB().Collection(collectionName)
+	return CardDB().Collection(collectionName)
 }

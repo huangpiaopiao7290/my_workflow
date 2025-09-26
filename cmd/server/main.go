@@ -60,8 +60,8 @@ func startGRPCServer(port int) (*grpc.Server, net.Listener, error) {
 // 启动http网关
 func startHTTPServer(grpcPort int, httpPort int) (*http.Server, error) {
 	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
+	// ctx, cancel := context.WithCancel(ctx)
+	// defer cancel()
 
 	// 创建gRPC-Gateway mux
 	mux := runtime.NewServeMux()
@@ -150,7 +150,7 @@ func main() {
 	logger.Info(context.TODO(), "shutting down servers...")
 
 	// 关闭HTTP服务器
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := httpServer.Shutdown(ctx); err != nil {
 		logger.Error(context.TODO(), "HTTP server forced to shutdown", map[string]string{

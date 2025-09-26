@@ -2,11 +2,11 @@ package card
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"sync"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -25,18 +25,18 @@ import (
 
 var (
 	once        sync.Once
-	cardService *CardService
+	cardService *Service
 )
 
-type CardService struct {
+type Service struct {
 	pb.UnimplementedCardServiceServer
 }
 
-func NewCardService() *CardService {
-	return &CardService{}
+func NewCardService() *Service {
+	return &Service{}
 }
 
-func GetCardService() *CardService {
+func GetCardService() *Service {
 	once.Do(func() {
 		cardService = NewCardService()
 	})
@@ -46,11 +46,11 @@ func GetCardService() *CardService {
 // wrapResponse 包装通用响应
 // 参数：
 //   - code：响应码
-//   - massege：响应信息
+//   - message：响应信息
 //   - data： 响应数据
 //
 // 返回：
-//   - commonresponse： 通用返回结构
+//   - commonResponse： 通用返回结构
 //   - error： 错误
 func wrapResponse(code int, message string, data any) (*pb.CommonResponse, error) {
 	var anyData *anypb.Any
@@ -74,6 +74,7 @@ func wrapResponse(code int, message string, data any) (*pb.CommonResponse, error
 	}, nil
 }
 
+// GetCard 获取卡片信息
 // @Summary 获取卡片信息
 // @Description 根据card_id获取唯一的card
 // @Tags
@@ -83,25 +84,24 @@ func wrapResponse(code int, message string, data any) (*pb.CommonResponse, error
 // @Success
 // @Failure
 // @Router
-func (s *CardService) GetCard(ctx context.Context, req *pb.GetCardRequest) (*pb.CommonResponse, error) {
+func (s *Service) GetCard(ctx context.Context, req *pb.GetCardRequest) (*pb.CommonResponse, error) {
 	// todo: 获取userid 目前没有用户系统，暂时不考虑
 
 	collection := card.Collection()
-	cardID, err := primitive.ObjectIDFromHex(req.CardId)
+	cardID, err := bson.ObjectIDFromHex(req.CardId)
 	if err != nil {
 		logger.Error(ctx, "param error", map[string]string{
 			"card_id": req.CardId,
 		})
 		return nil, status.Errorf(codes.InvalidArgument, "invalid card id")
 	}
-
 	var cardDoc card.DBStruct
 	err = collection.FindOne(ctx, bson.M{
-		card.CardIDKey: cardID,
-		card.DeleteKey: false,
+		card.IdKey: cardID,
+		// card.DeleteKey: false,
 	}).Decode(&cardDoc)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
+		if errors.Is(err, mongo.ErrNoDocuments) {
 			logger.Warn(ctx, "card not exists", map[string]string{
 				"card_id": req.CardId,
 				"error":   err.Error(),
@@ -112,17 +112,17 @@ func (s *CardService) GetCard(ctx context.Context, req *pb.GetCardRequest) (*pb.
 			"card_id": req.CardId,
 			"error":   err.Error(),
 		})
-		return nil, status.Errorf(codes.Internal, "get card faield")
+		return nil, status.Errorf(codes.Internal, "get card failed")
 	}
 
-	card := cardTypes.Convert2PbCard(&cardDoc)
+	out := cardTypes.Convert2PbCard(&cardDoc)
 
 	code := constant.HttpSuccess
 	msg := constant.GetMessage(code)
-	return wrapResponse(code, msg, card)
+	return wrapResponse(code, msg, out)
 }
 
-func (s *CardService) ListCards(ctx context.Context, req *pb.ListCardsRequest) (*pb.CommonResponse, error) {
+func (s *Service) ListCards(ctx context.Context, req *pb.ListCardsRequest) (*pb.CommonResponse, error) {
 	// todo: 获取用户id
 
 	collection := card.Collection()
@@ -238,9 +238,9 @@ func (s *CardService) ListCards(ctx context.Context, req *pb.ListCardsRequest) (
 	return wrapResponse(code, msg, listData)
 }
 
-func (s *CardService) UpdateCard(ctx context.Context, req *pb.UpdateCardRequest) (*pb.CommonResponse, error) {
+func (s *Service) UpdateCard(ctx context.Context, req *pb.UpdateCardRequest) (*pb.CommonResponse, error) {
 	collection := card.Collection()
-	cardID, err := primitive.ObjectIDFromHex(req.CardId)
+	cardID, err := bson.ObjectIDFromHex(req.CardId)
 	if err != nil {
 		logger.Error(ctx, "card id error", map[string]string{
 			"error":   err.Error(),
@@ -251,13 +251,13 @@ func (s *CardService) UpdateCard(ctx context.Context, req *pb.UpdateCardRequest)
 	// 检查卡片是否存在
 	var existingCard card.DBStruct
 	err = collection.FindOne(ctx, bson.M{
-		card.CardIDKey: cardID,
+		card.IdKey:     cardID,
 		card.DeleteKey: false,
 	}).Decode(&existingCard)
 
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			logger.Warn(ctx, "card not found", map[string]string{"CardID": req.CardId})
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			logger.Error(ctx, "card not found", map[string]string{"CardID": req.CardId})
 			return nil, status.Errorf(codes.NotFound, "card not found")
 		}
 		logger.Error(ctx, "get existing card failed", map[string]interface{}{
@@ -299,7 +299,7 @@ func (s *CardService) UpdateCard(ctx context.Context, req *pb.UpdateCardRequest)
 	// }
 
 	result, err := collection.UpdateOne(ctx, bson.M{
-		card.CardIDKey: cardID,
+		card.IdKey:     cardID,
 		card.DeleteKey: false,
 	}, update)
 	if err != nil {
@@ -324,12 +324,12 @@ func (s *CardService) UpdateCard(ctx context.Context, req *pb.UpdateCardRequest)
 	return wrapResponse(code, msg, nil)
 }
 
-func (s *CardService) AddCard(ctx context.Context, req *pb.AddCardRequest) (*pb.CommonResponse, error) {
+func (s *Service) AddCard(ctx context.Context, req *pb.AddCardRequest) (*pb.CommonResponse, error) {
 	// TODO: 用户id暂时为空
 	collection := card.Collection()
 	// 创建卡片对象
 	newCard := card.DBStruct{
-		CardID:    primitive.NewObjectID(),
+		CardID:    bson.NewObjectID(),
 		UserID:    "",
 		Title:     req.Title,
 		Content:   req.Content,
@@ -366,9 +366,9 @@ func (s *CardService) AddCard(ctx context.Context, req *pb.AddCardRequest) (*pb.
 	return wrapResponse(code, msg, pbCard)
 }
 
-func (s *CardService) DeleteCard(ctx context.Context, req *pb.DeleteCardRequest) (*pb.CommonResponse, error) {
+func (s *Service) DeleteCard(ctx context.Context, req *pb.DeleteCardRequest) (*pb.CommonResponse, error) {
 	collection := card.Collection()
-	cardID, err := primitive.ObjectIDFromHex(req.CardId)
+	cardID, err := bson.ObjectIDFromHex(req.CardId)
 	if err != nil {
 		logger.Error(ctx, "invalid card id format", map[string]interface{}{
 			"card_id": req.CardId,
@@ -380,7 +380,7 @@ func (s *CardService) DeleteCard(ctx context.Context, req *pb.DeleteCardRequest)
 	// 执行软删除
 	update := bson.M{"$set": bson.M{card.DeleteKey: true}}
 	result, err := collection.UpdateOne(ctx, bson.M{
-		card.CardIDKey: cardID,
+		card.IdKey:     cardID,
 		card.DeleteKey: false,
 	}, update)
 
@@ -404,7 +404,10 @@ func (s *CardService) DeleteCard(ctx context.Context, req *pb.DeleteCardRequest)
 	return wrapResponse(code, msg, nil)
 }
 
-func (s *CardService) Upload(ctx context.Context, req *pb.UploadRequest) (*pb.CommonResponse, error) {
+func (s *Service) Upload(ctx context.Context, req *pb.UploadRequest) (*pb.CommonResponse, error) {
 	// TODO: 上传文件
+	logger.Info(ctx, "delete card failed", map[string]interface{}{
+		"card_id": req.CardId,
+	})
 	return nil, nil
 }

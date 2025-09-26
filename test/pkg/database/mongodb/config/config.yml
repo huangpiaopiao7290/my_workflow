@@ -8,9 +8,9 @@ app:
 
 # database
 mongodb:
-  username: xxxxx
-  password: xxxxx
-  #addr: "mongodb://%s:%s@localhost:27017,localhost:27018,localhost:27019/?replicaSet=rs0&authSource=admin"
+  username: your_username
+  password: your_password
+  # addr: "mongodb://%s:%s@localhost:27017,localhost:27018,localhost:27019/?replicaSet=rs0&authSource=admin"
   addr: "mongodb://%s:%s@localhost:27017/?authSource=admin&directConnection=true"
   minPoolSize: 10
   maxPoolSize: 100

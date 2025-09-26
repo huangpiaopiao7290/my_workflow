@@ -24,7 +24,7 @@ import (
 )
 
 var (
-	rpcPort = flag.Int("rpc-port", 0, "grpc server port")
+	rpcPort  = flag.Int("rpc-port", 0, "grpc server port")
 	httpPort = flag.Int("http-port", 0, "http gateway port")
 )
 
@@ -37,10 +37,10 @@ func startGRPCServer(port int) (*grpc.Server, net.Listener, error) {
 	// 创建grpc服务器
 	s := grpc.NewServer()
 	// 注册卡片服务
-	cardService := card.NewCardService()
+	cardService := card.GetCardService()
 	pb.RegisterCardServiceServer(s, cardService)
 	// 启用反射服务（仅测试用，生产可删除）
-    reflection.Register(s)
+	reflection.Register(s)
 
 	logger.Info(context.TODO(), "starting grpc server", map[string]string{
 		"port": fmt.Sprintf("%d", port),
@@ -62,13 +62,13 @@ func startHTTPServer(grpcPort int, httpPort int) (*http.Server, error) {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	
+
 	// 创建gRPC-Gateway mux
 	mux := runtime.NewServeMux()
-	
+
 	// 设置gRPC服务器地址
 	grpcAddr := fmt.Sprintf("localhost:%d", grpcPort)
-	
+
 	// 注册CardService处理程序
 	err := pb.RegisterCardServiceHandlerFromEndpoint(ctx, mux, grpcAddr, []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -76,17 +76,17 @@ func startHTTPServer(grpcPort int, httpPort int) (*http.Server, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to register gateway: %v", err)
 	}
-	
+
 	// 创建HTTP服务器
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", httpPort),
 		Handler: mux,
 	}
-	
+
 	logger.Info(context.TODO(), "starting HTTP gateway", map[string]string{
 		"port": fmt.Sprintf("%d", httpPort),
 	})
-	
+
 	// 启动HTTP服务器（非阻塞）
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -95,25 +95,25 @@ func startHTTPServer(grpcPort int, httpPort int) (*http.Server, error) {
 			})
 		}
 	}()
-	
+
 	return srv, nil
 }
 
 func main() {
 	// 解析命令行参数
 	flag.Parse()
-	
+
 	// 从配置文件获取端口，如果命令行有指定则使用命令行参数
 	rpcPort := *rpcPort
 	if rpcPort == 0 {
 		rpcPort = config.GetInt("app.rpcPort")
 	}
-	
+
 	httpPort := *httpPort
 	if httpPort == 0 {
 		httpPort = config.GetInt("app.httpPort")
 	}
-	
+
 	// 初始化MongoDB连接（使用已封装的mongodb包）
 	if err := mongodb.NewClient(); err != nil {
 		logger.Fatal(context.TODO(), "failed to initialize mongodb", map[string]string{
@@ -121,12 +121,12 @@ func main() {
 		})
 	}
 	client := mongodb.GetClient()
-    if err := client.Ping(context.TODO(), nil); err != nil {
-        logger.Fatal(context.TODO(), "MongoDB ping failed (连接存活验证失败)", map[string]string{
-            "error": err.Error(),
-        })
-    }
-	
+	if err := client.Ping(context.TODO(), nil); err != nil {
+		logger.Fatal(context.TODO(), "MongoDB ping failed (连接存活验证失败)", map[string]string{
+			"error": err.Error(),
+		})
+	}
+
 	// 启动gRPC服务器
 	grpcServer, _, err := startGRPCServer(rpcPort)
 	if err != nil {
@@ -134,7 +134,7 @@ func main() {
 			"error": err.Error(),
 		})
 	}
-	
+
 	// 启动HTTP网关
 	httpServer, err := startHTTPServer(rpcPort, httpPort)
 	if err != nil {
@@ -142,13 +142,13 @@ func main() {
 			"error": err.Error(),
 		})
 	}
-	
+
 	// 等待中断信号关闭服务器
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	logger.Info(context.TODO(), "shutting down servers...")
-	
+
 	// 关闭HTTP服务器
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -157,9 +157,9 @@ func main() {
 			"error": err.Error(),
 		})
 	}
-	
+
 	// 关闭gRPC服务器
 	grpcServer.GracefulStop()
-	
+
 	logger.Info(context.TODO(), "servers exiting")
 }

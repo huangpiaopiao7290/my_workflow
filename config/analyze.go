@@ -15,7 +15,7 @@ import (
 var (
 	EnvConfigRootDir = "/config"				// 配置文件根目录
 	BaseConfigPath = "/config/config.yml"		// 基础配置文件路径
-	configMutext sync.RWMutex
+	configMutex sync.RWMutex
 )
 
 func init() {
@@ -25,8 +25,8 @@ func init() {
 }
 
 func LoadConfig() error {
-	configMutext.Lock()
-	defer configMutext.Unlock()
+	configMutex.Lock()
+	defer configMutex.Unlock()
 
 	// 获取当前工作目录
 	cwd, err := os.Getwd()
